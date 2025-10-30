@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Expense Tracker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Navigation Bar (hidden on login page) -->
+    <nav id="mainNav" class="nav-bar" style="display: none;">
+        <div class="nav-container">
+            <div class="nav-brand">💰 Expense Tracker</div>
+            <div class="nav-menu">
+                <a href="#" class="nav-link" data-page="dashboard">Dashboard</a>
+                <a href="#" class="nav-link" data-page="add-transaction">Add Transaction</a>
+                <a href="#" class="nav-link" data-page="budgets">Budgets</a>
+                <a href="#" class="nav-link" data-page="history">History</a>
+            </div>
+            <div class="nav-user">
+                <span id="userName" class="user-name"></span>
+                <button id="logoutBtn" class="btn btn--secondary btn--sm">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <main id="mainContent" class="main-content">
+        <!-- Login/Register Page -->
+        <div id="loginPage" class="page active">
+            <div class="auth-container">
+                <div class="auth-header">
+                    <h1>💰 Personal Expense Tracker</h1>
+                    <p>Manage your finances with ease</p>
+                </div>
+                <div class="auth-forms">
+                    <!-- Login Form -->
+                    <div class="auth-card">
+                        <h2>Login</h2>
+                        <form id="loginForm" class="auth-form">
+                            <div class="form-group">
+                                <label class="form-label" for="loginEmail">Email</label>
+                                <input type="email" id="loginEmail" class="form-control" placeholder="demo@expense.com" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="loginPassword">Password</label>
+                                <input type="password" id="loginPassword" class="form-control" placeholder="Enter password" required>
+                            </div>
+                            <div id="loginError" class="error-message"></div>
+                            <button type="submit" class="btn btn--primary btn--full-width">Login</button>
+                            <button type="button" id="demoLoginBtn" class="btn btn--secondary btn--full-width" style="margin-top: 10px;">Demo Login</button>
+                            <a href="#" class="forgot-password">Forgot Password?</a>
+                        </form>
+                    </div>
+
+                    <!-- Register Form -->
+                    <div class="auth-card">
+                        <h2>Register</h2>
+                        <form id="registerForm" class="auth-form">
+                            <div class="form-group">
+                                <label class="form-label" for="registerName">Name</label>
+                                <input type="text" id="registerName" class="form-control" placeholder="John Doe" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="registerEmail">Email</label>
+                                <input type="email" id="registerEmail" class="form-control" placeholder="you@example.com" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="registerPassword">Password</label>
+                                <input type="password" id="registerPassword" class="form-control" placeholder="Min 6 characters" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="registerConfirmPassword">Confirm Password</label>
+                                <input type="password" id="registerConfirmPassword" class="form-control" placeholder="Re-enter password" required>
+                            </div>
+                            <div id="registerError" class="error-message"></div>
+                            <button type="submit" class="btn btn--primary btn--full-width">Register</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Page -->
+        <div id="dashboardPage" class="page">
+            <div class="page-header">
+                <h1>Dashboard</h1>
+                <p class="page-subtitle">Welcome back! Here's your financial overview</p>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="summary-cards">
+                <div class="summary-card summary-card--income">
+                    <div class="summary-card__icon">📈</div>
+                    <div class="summary-card__content">
+                        <div class="summary-card__label">Total Income</div>
+                        <div class="summary-card__value" id="totalIncome">$0</div>
+                    </div>
+                </div>
+                <div class="summary-card summary-card--expense">
+                    <div class="summary-card__icon">📉</div>
+                    <div class="summary-card__content">
+                        <div class="summary-card__label">Total Expenses</div>
+                        <div class="summary-card__value" id="totalExpenses">$0</div>
+                    </div>
+                </div>
+                <div class="summary-card summary-card--balance">
+                    <div class="summary-card__icon">💵</div>
+                    <div class="summary-card__content">
+                        <div class="summary-card__label">Current Balance</div>
+                        <div class="summary-card__value" id="currentBalance">$0</div>
+                    </div>
+                </div>
+                <div class="summary-card summary-card--savings">
+                    <div class="summary-card__icon">🎯</div>
+                    <div class="summary-card__content">
+                        <div class="summary-card__label">Savings Rate</div>
+                        <div class="summary-card__value" id="savingsRate">0%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="charts-section">
+                <div class="chart-card">
+                    <h3>Expense Breakdown</h3>
+                    <div class="chart-container" style="height: 300px;">
+                        <canvas id="pieChart"></canvas>
+                    </div>
+                    <div id="pieChartLegend" class="chart-legend"></div>
+                </div>
+                <div class="chart-card">
+                    <h3>Monthly Comparison</h3>
+                    <div class="chart-container" style="height: 300px;">
+                        <canvas id="barChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card chart-card--full">
+                    <h3>Spending Trend</h3>
+                    <div class="chart-container" style="height: 300px;">
+                        <canvas id="lineChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Transactions -->
+            <div class="card">
+                <div class="card__header">
+                    <h3>Recent Transactions</h3>
+                </div>
+                <div class="card__body">
+                    <div id="recentTransactions" class="transactions-list"></div>
+                </div>
+            </div>
+
+            <!-- Floating Action Button -->
+            <button id="fabBtn" class="fab" title="Add Transaction">
+                <span>+</span>
+            </button>
+        </div>
+
+        <!-- Add Transaction Page -->
+        <div id="addTransactionPage" class="page">
+            <div class="page-header">
+                <h1>Add Transaction</h1>
+                <p class="page-subtitle">Record a new income or expense</p>
+            </div>
+
+            <div class="form-container">
+                <form id="transactionForm" class="transaction-form">
+                    <!-- Transaction Type Toggle -->
+                    <div class="form-group">
+                        <label class="form-label">Transaction Type</label>
+                        <div class="type-toggle">
+                            <button type="button" class="type-toggle__btn active" data-type="expense">Expense</button>
+                            <button type="button" class="type-toggle__btn" data-type="income">Income</button>
+                        </div>
+                    </div>
+
+                    <!-- Category -->
+                    <div class="form-group">
+                        <label class="form-label" for="transactionCategory">Category</label>
+                        <select id="transactionCategory" class="form-control" required>
+                            <option value="">Select a category</option>
+                        </select>
+                    </div>
+
+                    <!-- Amount -->
+                    <div class="form-group">
+                        <label class="form-label" for="transactionAmount">Amount</label>
+                        <div class="input-with-prefix">
+                            <span class="input-prefix">$</span>
+                            <input type="number" id="transactionAmount" class="form-control" placeholder="0.00" step="0.01" min="0.01" required>
+                        </div>
+                    </div>
+
+                    <!-- Date -->
+                    <div class="form-group">
+                        <label class="form-label" for="transactionDate">Date</label>
+                        <input type="date" id="transactionDate" class="form-control" required>
+                    </div>
+
+                    <!-- Notes -->
+                    <div class="form-group">
+                        <label class="form-label" for="transactionNotes">Notes / Description</label>
+                        <textarea id="transactionNotes" class="form-control" rows="4" placeholder="Add any additional details..."></textarea>
+                    </div>
+
+                    <div id="transactionError" class="error-message"></div>
+
+                    <!-- Action Buttons -->
+                    <div class="form-actions">
+                        <button type="button" id="cancelTransactionBtn" class="btn btn--secondary">Cancel</button>
+                        <button type="submit" class="btn btn--primary">Save Transaction</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Budgets Page -->
+        <div id="budgetsPage" class="page">
+            <div class="page-header">
+                <h1>Monthly Budgets</h1>
+                <p class="page-subtitle" id="currentMonthDisplay"></p>
+            </div>
+
+            <!-- Budget Overview -->
+            <div class="card budget-overview">
+                <div class="budget-overview__content">
+                    <div class="budget-overview__item">
+                        <span class="label">Total Budget</span>
+                        <span class="value" id="totalBudget">$0</span>
+                    </div>
+                    <div class="budget-overview__item">
+                        <span class="label">Total Spent</span>
+                        <span class="value" id="totalSpent">$0</span>
+                    </div>
+                    <div class="budget-overview__item">
+                        <span class="label">Remaining</span>
+                        <span class="value" id="totalRemaining">$0</span>
+                    </div>
+                </div>
+                <div class="progress-bar">
+                    <div id="budgetProgressBar" class="progress-bar__fill"></div>
+                </div>
+            </div>
+
+            <!-- Category Budgets -->
+            <div id="categoryBudgets" class="budget-cards"></div>
+        </div>
+
+        <!-- History Page -->
+        <div id="historyPage" class="page">
+            <div class="page-header">
+                <h1>Transaction History</h1>
+                <p class="page-subtitle">View and manage all your transactions</p>
+            </div>
+
+            <!-- Filters -->
+            <div class="card">
+                <div class="card__body">
+                    <div class="filters">
+                        <div class="filter-group">
+                            <label class="form-label">From Date</label>
+                            <input type="date" id="filterFromDate" class="form-control">
+                        </div>
+                        <div class="filter-group">
+                            <label class="form-label">To Date</label>
+                            <input type="date" id="filterToDate" class="form-control">
+                        </div>
+                        <div class="filter-group">
+                            <label class="form-label">Category</label>
+                            <select id="filterCategory" class="form-control">
+                                <option value="">All Categories</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label class="form-label">Type</label>
+                            <select id="filterType" class="form-control">
+                                <option value="">All Types</option>
+                                <option value="income">Income</option>
+                                <option value="expense">Expense</option>
+                            </select>
+                        </div>
+                        <div class="filter-group filter-group--search">
+                            <label class="form-label">Search</label>
+                            <input type="text" id="filterSearch" class="form-control" placeholder="Search in notes...">
+                        </div>
+                        <div class="filter-actions">
+                            <button id="applyFiltersBtn" class="btn btn--primary btn--sm">Apply</button>
+                            <button id="clearFiltersBtn" class="btn btn--secondary btn--sm">Clear</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary Stats -->
+            <div class="history-stats">
+                <div class="stat-item">
+                    <span class="stat-label">Total Transactions</span>
+                    <span class="stat-value" id="statTotalTransactions">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Total Income</span>
+                    <span class="stat-value stat-value--income" id="statTotalIncome">$0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Total Expenses</span>
+                    <span class="stat-value stat-value--expense" id="statTotalExpenses">$0</span>
+                </div>
+            </div>
+
+            <!-- Transactions Table -->
+            <div class="card">
+                <div class="card__header">
+                    <h3>All Transactions</h3>
+                    <button id="exportBtn" class="btn btn--secondary btn--sm">📥 Export CSV</button>
+                </div>
+                <div class="card__body">
+                    <div id="transactionsTable" class="transactions-table"></div>
+                    <div id="pagination" class="pagination"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="modal">
+        <div class="modal__content">
+            <h3 id="confirmTitle">Confirm Action</h3>
+            <p id="confirmMessage">Are you sure?</p>
+            <div class="modal__actions">
+                <button id="confirmCancelBtn" class="btn btn--secondary">Cancel</button>
+                <button id="confirmOkBtn" class="btn btn--primary">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Transaction Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal__content modal__content--large">
+            <h3>Edit Transaction</h3>
+            <form id="editTransactionForm">
+                <input type="hidden" id="editTransactionId">
+                <div class="form-group">
+                    <label class="form-label">Type</label>
+                    <select id="editTransactionType" class="form-control" required>
+                        <option value="expense">Expense</option>
+                        <option value="income">Income</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Category</label>
+                    <select id="editTransactionCategory" class="form-control" required></select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Amount</label>
+                    <div class="input-with-prefix">
+                        <span class="input-prefix">$</span>
+                        <input type="number" id="editTransactionAmount" class="form-control" step="0.01" min="0.01" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Date</label>
+                    <input type="date" id="editTransactionDate" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Notes</label>
+                    <textarea id="editTransactionNotes" class="form-control" rows="3"></textarea>
+                </div>
+                <div class="modal__actions">
+                    <button type="button" id="editCancelBtn" class="btn btn--secondary">Cancel</button>
+                    <button type="submit" class="btn btn--primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
